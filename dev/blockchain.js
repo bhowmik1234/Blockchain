@@ -21,23 +21,23 @@ function Blockchain()
 } 
 
 // Add block to the blockchain
-Blockchain.prototype.addBlock = function()
-{
-    const lastBlockHash = this.lastBlockHash();
-    const nonce = this.proofOfWork(lastBlockHash, this.transaction);
-    var newBlock = {
-        index: this.chain.length + 1,
-        Hash: this.hashBlock(lastBlockHash, this.transaction, nonce),
-        previousBlockHash: lastBlockHash,
-        transaction: this.pendingTransaction,
-        timestamp: Date.now(),
-        nonce: nonce,
-    }
+// Blockchain.prototype.addBlock = function()
+// {
+//     const lastBlockHash = this.lastBlockHash();
+//     const nonce = this.proofOfWork(lastBlockHash, this.transaction);
+//     var newBlock = {
+//         index: this.chain.length + 1,
+//         Hash: this.hashBlock(lastBlockHash, this.transaction, nonce),
+//         previousBlockHash: lastBlockHash,
+//         transaction: this.pendingTransaction,
+//         timestamp: Date.now(),
+//         nonce: nonce,
+//     }
 
-    this.pendingTransaction = [];
-    this.chain.push(newBlock);
+//     this.pendingTransaction = [];
+//     this.chain.push(newBlock);
 
-}
+// }
 
 // Creation of new block 
 Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash, Hash)
