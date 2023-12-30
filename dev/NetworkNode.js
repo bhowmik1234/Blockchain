@@ -14,16 +14,42 @@ const bitcoin = new Blockchain;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
+// send the bitcoin blockchan to the network
 app.get('/blockchain', function (req, res) {
     res.send(bitcoin);
 });
 
+// recieve the transaction and to the pending transaction
 app.post('/transaction', function (req, res) {
     const transaction_info = req.body;
     const blockIndex = bitcoin.addNewTransaction(transaction_info.amount, transaction_info.sender, transaction_info.recipient);
     res.json({note: `Transaction will be added in the block ${blockIndex}`});
 });
 
+// add transaction to existing node and broadcast it to all other node
+app.post('/transaction/broadcast', function(req, res) {
+    const newTransaction = bitcoin.addNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+    bitcoin.addTransactionToPendingTransaction(newTransaction);
+
+    const allPromises = [];
+    bitcoin.NetworkNodes.forEach(networkUrl => {
+        const requestOption = {
+            uri: networkUrl + '/transaction',
+            method: "POST",
+            body: newTransaction,
+            json: true
+        };
+
+        allPromises.push(rp(requestOption));
+    });
+
+    Promise.all(allPromises)
+    .then(data => {
+        res.send({note: "All transaction created and broadcast successfully."});
+    });
+});
+
+// add block to the single node network
 app.get('/mine', function (req, res) {
     const lastBlock = bitcoin.getLastBlock();
     const previousBlockHash = lastBlock['hash'];
@@ -99,6 +125,8 @@ app.post('/register-node-bulk', function(req, res){
     res.json({note: 'Bulk node register successfullly.'});
 });
 
+
+// Determine to run blockchain in which port
 app.listen(port, function(){
     console.log(`Listening to port ${port}.....`);
 })

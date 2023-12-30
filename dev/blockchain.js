@@ -1,5 +1,7 @@
 const sha256 = require('sha256');
 const currentNodeUrl = process.argv[4];
+const { v4: uuidv4 } = require('uuid');
+
 // Genese block means the first block in block chain
 
 // create newblock
@@ -68,17 +70,22 @@ Blockchain.prototype.getLastBlock = function()
     return this.chain[this.chain.length - 1];
 }
 
-// Add new transaction to blockchain
+// Add new transaction to blockchain    
 Blockchain.prototype.addNewTransaction = function(amount, sender, recipient)
 {
     const newTransaction = {
         amount: amount, 
         recipient: recipient,
-        sender: sender
+        sender: sender,
+        transactionId: uuidv4().split('-').join('')
     };
 
-    this.pendingTransaction.push(newTransaction);
+    return newTransaction;
+}
 
+Blockchain.prototype.addTransactionToPendingTransaction = function (transactionObj)
+{
+    this.pendingTransaction.push(transactionObj);
     return this.getLastBlock()['index'] + 1;
 }
 
