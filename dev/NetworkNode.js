@@ -61,7 +61,7 @@ app.post('/register-and-broadcast-node', function(req, res){
         };
         regNodesPromises.push(rp(requestOption));
     });
-sdfadfgit 
+
     Promise.all(regNodesPromises)
     .then(data => {
         const bulkRegisterOption = {
