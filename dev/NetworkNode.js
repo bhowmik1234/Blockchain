@@ -22,7 +22,7 @@ app.get('/blockchain', function (req, res) {
 // recieve the transaction and to the pending transaction
 app.post('/transaction', function (req, res) {
     const transaction_info = req.body;
-    const blockIndex = bitcoin.addNewTransaction(transaction_info.amount, transaction_info.sender, transaction_info.recipient);
+    const blockIndex = bitcoin.addTransactionToPendingTransaction(transaction_info);
     res.json({note: `Transaction will be added in the block ${blockIndex}`});
 });
 
@@ -40,7 +40,7 @@ app.post('/transaction/broadcast', function(req, res) {
             json: true
         };
 
-        allPromises.push(rp(requestOption));
+        allPromises.push(rp(requestOption)); 
     });
 
     Promise.all(allPromises)
@@ -63,13 +63,66 @@ app.get('/mine', function (req, res) {
 
     const nonce = bitcoin.proofOfWork(previousBlockHash, currentBlockData);
     const currentBlockHash = bitcoin.hashBlock(previousBlockHash, currentBlockData, nonce);
-
     const newBlock = bitcoin.createNewBlock(nonce, previousBlockHash, currentBlockHash);
 
-    res.json({
-        note: "New block mined to blockchain,",
-        block: newBlock
+    const allPromises = [];
+    bitcoin.NetworkNodes.forEach(networkUrl => {
+        const requestOption = {
+            uri: networkUrl + '/recieve-new-block',
+            method: "POST",
+            body: {newBlock: newBlock},
+            json: true
+        };
+
+        allPromises.push(rp(requestOption)); 
     });
+
+    Promise.all(allPromises)
+    .then(data =>{
+        const requestOption ={
+            uri: bitcoin.currentNodeUrl + '/transaction/broadcast',
+            method: "POST",
+            body:{
+                amount: 12.5,
+                sender: "00",
+                recipient: "56J34L5K6H3L"
+            },
+            json: true
+        };
+
+        return rp(requestOption);
+    })
+    .then(data =>{
+        res.json({
+            note: "New block mined to blockchain,",
+            block: newBlock
+        });
+    });
+
+    
+});
+
+// it recieve new block and add it to all other node
+app.post('/receive-new-block', function(req, res) {
+    const newBlock = req.body.newBlock;
+    const correctHash = bitcoin.lastBlock['Hash'] === newBlock['Hash'];
+    const correctIndex = bitcoin.lastBlock['index']+1 === newBlock['index'];
+
+    if(correctHash && correctIndex)
+    {
+        bitcoin.chain.push(newBlock);
+        bitcoin.pendingTransaction = [];
+        res.json({
+            note: 'New block mined successfully',
+            newBlock: newBlock
+        })
+    }
+    else{
+        res.json({
+            note: 'New Block rejected',
+            newBlock: newBlock
+        })
+    }
 });
 
 // it will register a block and broadcast it to all other network node

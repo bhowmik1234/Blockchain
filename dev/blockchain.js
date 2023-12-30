@@ -57,12 +57,7 @@ Blockchain.prototype.createNewBlock = function(nonce, previousBlockHash, Hash)
     return newBlock;
 }
 
-// give the hash of last block
-Blockchain.prototype.lastBlockHash = function()
-{
-    const lastBlock = this.getLastBlock();
-    return this.hashBlock(lastBlock['previousBlockHash'], lastBlock['Hash'], lastBlock['nonce']);
-}
+
 
 // give all details related to last Block
 Blockchain.prototype.getLastBlock = function()
@@ -83,6 +78,7 @@ Blockchain.prototype.addNewTransaction = function(amount, sender, recipient)
     return newTransaction;
 }
 
+// add transaction to the pending transaction
 Blockchain.prototype.addTransactionToPendingTransaction = function (transactionObj)
 {
     this.pendingTransaction.push(transactionObj);
