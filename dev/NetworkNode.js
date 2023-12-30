@@ -63,7 +63,7 @@ app.get('/mine', function (req, res) {
     const currentBlockHash = bitcoin.hashBlock(previousBlockHash, currentBlockData, nonce);
     const newBlock = bitcoin.createNewBlock(nonce, previousBlockHash, currentBlockHash);
 
-    const allPromises = [];
+    const requestPromises = [];
     bitcoin.NetworkNodes.forEach(networkUrl => {
         const requestOption = {
             uri: networkUrl + '/recieve-new-block',
@@ -72,10 +72,10 @@ app.get('/mine', function (req, res) {
             json: true
         };
 
-        allPromises.push(rp(requestOption)); 
+        requestPromises.push(rp(requestOption)); 
     });
 
-    Promise.all(allPromises)
+    Promise.all(requestPromises)
     .then(data =>{
         const requestOption = {
             uri: bitcoin.currentNodeUrl + '/transaction/broadcast',
@@ -93,6 +93,7 @@ app.get('/mine', function (req, res) {
     .then(data =>{
         res.json({
             note: "New block mined to blockchain,",
+            block: newBlock
         });
     });
 
@@ -102,9 +103,11 @@ app.get('/mine', function (req, res) {
 // it recieve new block and add it to all other node
 app.post('/recieve-new-block', function(req, res) {
     const newBlock = req.body.newBlock;
-    const correctHash = bitcoin.lastBlock.Hash === newBlock.Hash;
-    const correctIndex = bitcoin.lastBlock['index'] + 1 === newBlock['index'];
+    const lastBlock = bitcoin.getLastBlock();
+    const correctIndex = (lastBlock['index'] + 1) ==  newBlock['index'];
+    const correctHash = lastBlock.Hash == newBlock.previousBlockHash;
 
+    console.log(correctHash, correctIndex);
     if(correctHash && correctIndex)
     {
         bitcoin.chain.push(newBlock);
