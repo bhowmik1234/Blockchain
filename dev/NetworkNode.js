@@ -179,6 +179,55 @@ app.post('/register-node-bulk', function(req, res){
     res.json({note: 'Bulk node register successfullly.'});
 });
 
+// consenses algorithm (longest chain)
+app.get('/consenses', function(req, res){
+    const requestPromises = [];
+    bitcoin.NetworkNodes.forEach(networkNodeUrl =>{
+        const requestOption = {
+            uri: networkNodeUrl + '/blockchain',
+            method: 'GET',
+            json: true
+        };
+
+        requestPromises.push(rp(requestOption));
+    });
+
+    Promise.all(requestPromises)
+    .then(blockchains =>{
+        const currentChainLength = bitcoin.chain.length;
+        const maxChainLength = currentChainLength;
+        const newLongestChain = null;
+        const pendingTransaction = null;
+
+        blockchains.forEach(blockchain =>{
+            if(blockchain.chain.length > currentChainLength)
+            {
+                maxChainLength = blockchain.chain.length;
+                newLongestChain = blockchain.chain;
+                pendingTransaction = blockchain.pendingTransaction;
+            };
+        });
+
+        if(!newLongestChain || (newLongestChain && bitcoin.chainIsValid(newLongestChain)))
+        {
+            res.json({
+                note: 'newLongest chain is not valid.',
+                chain: bitcoin.chain
+            })
+        }
+        else if (newLongestChain && bitcoin.chainIsValid(newLongestChain))
+        {
+            bitcoin.chain = newLongestChain;
+            bitcoin.pendingTransaction = pendingTransaction;
+            res.json({
+                note: 'current Node chain is replaced by new longest chain.',
+                chain: newLongestChain 
+            });
+        }
+
+    })
+});
+
 
 // Determine to run blockchain in which port
 app.listen(port, function(){
