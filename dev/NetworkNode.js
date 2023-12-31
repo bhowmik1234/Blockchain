@@ -104,10 +104,9 @@ app.get('/mine', function (req, res) {
 app.post('/recieve-new-block', function(req, res) {
     const newBlock = req.body.newBlock;
     const lastBlock = bitcoin.getLastBlock();
-    const correctIndex = (lastBlock['index'] + 1) ==  newBlock['index'];
-    const correctHash = lastBlock.Hash == newBlock.previousBlockHash;
+    const correctIndex = (lastBlock['index'] + 1) ===  newBlock['index'];
+    const correctHash = lastBlock.Hash === newBlock.previousBlockHash;
 
-    console.log(correctHash, correctIndex);
     if(correctHash && correctIndex)
     {
         bitcoin.chain.push(newBlock);
