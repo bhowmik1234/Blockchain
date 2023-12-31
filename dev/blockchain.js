@@ -17,7 +17,7 @@ function Blockchain()
     this.currentNodeUrl = currentNodeUrl;
     this.NetworkNodes = [];
 
-    this.createNewBlock(100, '56HLKJ4625H', 'JH6G2JH3K65KJ6');
+    this.createNewBlock(100, '56HLKJ4625H', '56HLKJ4625H');
 } 
 
 // Creation of new block 
@@ -85,6 +85,30 @@ Blockchain.prototype.proofOfWork = function(previousBlockHash, currentBlockData)
     }
 
     return nonce;
+}
+
+// it checks the chain in the blockchain in valid
+Blockchain.prototype.chainIsValid = function(blockchain){
+    let validChain = true;
+    for(var i=1; i<blockchain.length; i++)
+    {
+        const currentBlock = blockchain[i];
+        const prevBlock = blockchain[i - 1];
+        const blockHash = this.hashBlock(prevBlock['Hash'], {transaction: currentBlock['transaction'], index: currentBlock['index']}, currentBlock['nonce']);
+        if(blockHash.substring(0, 4) !== '0000') validChain = false;
+
+        if(currentBlock['previousBlockHash'] !== prevBlock['Hash']) validChain = false;
+    }
+
+    const genesisBlock = blockchain[0];
+    const correctNonce = genesisBlock['nonce'] === 100;
+    const correctPreviousHash = genesisBlock['previousBlockHash'] === '56HLKJ4625H';
+    const correctHash = genesisBlock['Hash'] === '56HLKJ4625H';
+    const correctTransaction = genesisBlock['transaction'].length === 0;
+
+    if(!correctNonce || !correctPreviousHash || !correctHash || !correctTransaction) validChain=false;
+
+    return validChain;
 }
 
 module.exports = Blockchain;

@@ -174,6 +174,8 @@ app.post('/register-node-bulk', function(req, res){
         if(nodeNotAlreadyPresent && notCurrentNode) bitcoin.NetworkNodes.push(netWorkNodeUrl)
     })
 
+    
+
     res.json({note: 'Bulk node register successfullly.'});
 });
 
