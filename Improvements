@@ -1,0 +1,3 @@
+- Error Handling
+- transaction (check wheather the sender and recipient are correct or not) if user has ther amount to send or not
+- store more data inside each block
