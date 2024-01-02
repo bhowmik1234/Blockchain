@@ -228,6 +228,35 @@ app.get('/consenses', function(req, res){
     })
 });
 
+// send hash of specific block
+app.get('/block/:blockHash', function(req, res) {  // params it gives specific value in the url which has ( : ) before
+    const blockHash = req.params.blockHash;
+    const correctBlock = bitcoin.getBlock(blockHash);
+
+    res.json({
+        block: correctBlock
+    })
+});
+
+// send a specific transaction by sending specific id
+app.get('/transaction/:transactionId', function(req, res){
+    const transactionId = req.params.transactionId;
+    const transactionData = bitcoin.getTransaction(transactionId);
+
+    res.json(transactionData);
+});
+
+app.get('/address/:address', function(req, res) {
+    const address = req.params.address;
+    const transactionData = bitcoin.getTransactionData(address);
+
+    res.json(transactionData);
+});
+
+// send block-explorer file
+app.get('/block-explorer', function(req, res){
+    res.sendFile('./blockchain-explorer/index.html', {root: __dirname});
+});
 
 // Determine to run blockchain in which port
 app.listen(port, function(){
