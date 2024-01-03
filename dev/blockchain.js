@@ -158,7 +158,7 @@ Blockchain.prototype.getTransactionData = function(address){
 
     return {
         addressTransaction: addressTransaction,
-        balance: balance
+        addressBalance: balance
     }
 };
 

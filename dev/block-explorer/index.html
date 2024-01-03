@@ -50,27 +50,27 @@
 					<tbody>
 						<tr>
 							<td class="bold">Block Hash</td>
-							<td>{‌{ block.hash }}</td>
+							<td>{{ block.Hash }}</td>
 						</tr>
 						<tr>
 							<td class="bold">Index</td>
-							<td>{‌{ block.index }}</td>
+							<td>{{ block.index }}</td>
 						</tr>
 						<tr>
 							<td class="bold">Time Stamp</td>
-							<td>{‌{ block.timestamp }}</td>
+							<td>{{ block.timestamp }}</td>
 						</tr>
 						<tr>
 							<td class="bold">Nonce</td>
-							<td>{‌{ block.nonce }}</td>
+							<td>{{ block.nonce }}</td>
 						</tr>
 						<tr>
 							<td class="bold">Previous Hash</td>
-							<td>{‌{ block.previousBlockHash }}</td>
+							<td>{{ block.previousBlockHash }}</td>
 						</tr>
 						<tr>
 							<td class="bold">Number Transactions</td>
-							<td>{‌{ block.transactions.length }}</td>
+							<td>{{ block.transaction.length }}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -82,15 +82,15 @@
 					<tbody>
 						<tr>
 							<td class="bold">Sender</td>
-							<td>{‌{ transaction.sender }}</td>
+							<td>{{ transaction.sender }}</td>
 						</tr>
 						<tr>
 							<td class="bold">Recipient</td>
-							<td>{‌{ transaction.recipient }}</td>
+							<td>{{ transaction.recipient }}</td>
 						</tr>
 						<tr>
 							<td class="bold">Amount</td>
-							<td>{‌{ transaction.amount }}</td>
+							<td>{{ transaction.amount }}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -98,7 +98,7 @@
 
 				<!-- 'display address' table -->
 				<h3 class="table-title" ng-if="addressData">Address</h3>
-				<p id="balance-text" ng-if="addressData">(Balance: {‌{ addressData.addressBalance }})</p>
+				<p id="balance-text" ng-if="addressData">(Balance: {{ addressData.addressBalance }})</p>
 				<table class="table table-striped" ng-if="addressData">
 					<thead>
 						<tr>
@@ -108,10 +108,10 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="transaction in addressData.addressTransactions">
-							<td>{‌{ transaction.sender }}</td>
-							<td>{‌{ transaction.recipient }}</td>
-							<td>{‌{ transaction.amount }}</td>
+						<tr ng-repeat="transaction in addressData.addressTransaction">
+							<td>{{ transaction.sender }}</td>
+							<td>{{ transaction.recipient }}</td>
+							<td>{{ transaction.amount }}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -136,6 +136,7 @@
 						$scope.block = response.data.block;
 						$scope.transaction = null;
 						$scope.addressData = null;
+						console.log($scope.block);
 					});
 			};
 
@@ -152,10 +153,12 @@
 				$http.get(`/address/${address}`)
 					.then(response => {
 						$scope.addressData = response.data.addressData;
-						if (!$scope.addressData.addressTransactions.length) $scope
-							.addressData = null;
+		
+						if (!$scope.addressData.addressTransactions.length){
+							 $scope.addressData = null;
+							}
+							$scope.transaction = null;
 						$scope.block = null;
-						$scope.transaction = null;
 					});
 			};
 

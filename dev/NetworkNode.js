@@ -250,12 +250,14 @@ app.get('/address/:address', function(req, res) {
     const address = req.params.address;
     const transactionData = bitcoin.getTransactionData(address);
 
-    res.json(transactionData);
+    res.json({
+        addressData: transactionData
+    });
 });
 
 // send block-explorer file
 app.get('/block-explorer', function(req, res){
-    res.sendFile('./blockchain-explorer/index.html', {root: __dirname});
+    res.sendFile('./block-explorer/index.html', {root: __dirname});
 });
 
 // Determine to run blockchain in which port
